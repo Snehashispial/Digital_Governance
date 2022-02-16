@@ -1,0 +1,193 @@
+-- MySQL Workbench Forward Engineering
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+-- -----------------------------------------------------
+-- Schema mydb
+-- -----------------------------------------------------
+DROP SCHEMA IF EXISTS `mydb` ;
+
+-- -----------------------------------------------------
+-- Schema mydb
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET utf8 ;
+USE `mydb` ;
+
+-- -----------------------------------------------------
+-- Table `departments`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `departments` ;
+
+CREATE TABLE IF NOT EXISTS `departments` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `dept_name` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `doctors`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `doctors` ;
+
+CREATE TABLE IF NOT EXISTS `doctors` (
+  `pid` INT NOT NULL,
+  `name` VARCHAR(45) NOT NULL,
+  `designation` VARCHAR(100) NOT NULL,
+  `gender` VARCHAR(45) NOT NULL,
+  `degree` VARCHAR(100) NOT NULL,
+  `institution` VARCHAR(100) NULL,
+  `room` INT NOT NULL,
+  `chamber_time` VARCHAR(45) NOT NULL,
+  `hotline` VARCHAR(45) NULL,
+  `password` VARCHAR(45) NOT NULL,
+  `departments_id` INT NOT NULL,
+  PRIMARY KEY (`pid`),
+  INDEX `fk_doctors_departments1_idx` (`departments_id` ASC) VISIBLE,
+  CONSTRAINT `fk_doctors_departments1`
+    FOREIGN KEY (`departments_id`)
+    REFERENCES `departments` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `lab_officers`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `lab_officers` ;
+
+CREATE TABLE IF NOT EXISTS `lab_officers` (
+  `pid` INT NOT NULL,
+  `name` VARCHAR(45) NOT NULL,
+  `password` VARCHAR(100) NOT NULL,
+  PRIMARY KEY (`pid`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `billers`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `billers` ;
+
+CREATE TABLE IF NOT EXISTS `billers` (
+  `pid` INT NOT NULL,
+  `name` VARCHAR(45) NOT NULL,
+  `password` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`pid`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `drug_list`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `drug_list` ;
+
+CREATE TABLE IF NOT EXISTS `drug_list` (
+  `drag_name` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`drag_name`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `test_list`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `test_list` ;
+
+CREATE TABLE IF NOT EXISTS `test_list` (
+  `test_name` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`test_name`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `patients`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `patients` ;
+
+CREATE TABLE IF NOT EXISTS `patients` (
+  `pid` INT NOT NULL,
+  `name` VARCHAR(45) NOT NULL,
+  `phone` VARCHAR(45) NOT NULL,
+  `address` VARCHAR(45) NOT NULL,
+  `dob` DATE NOT NULL,
+  `gender` VARCHAR(45) NOT NULL,
+  `age` INT NOT NULL,
+  `bg` VARCHAR(45) NULL,
+  PRIMARY KEY (`pid`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `doctors_has_patients`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `doctors_has_patients` ;
+
+CREATE TABLE IF NOT EXISTS `doctors_has_patients` (
+  `doctors_pid` INT NOT NULL,
+  `patients_pid` INT NOT NULL,
+  `appointment_token` INT NOT NULL,
+  PRIMARY KEY (`doctors_pid`, `patients_pid`),
+  INDEX `fk_doctors_has_patients_patients1_idx` (`patients_pid` ASC) VISIBLE,
+  INDEX `fk_doctors_has_patients_doctors1_idx` (`doctors_pid` ASC) VISIBLE,
+  CONSTRAINT `fk_doctors_has_patients_doctors1`
+    FOREIGN KEY (`doctors_pid`)
+    REFERENCES `doctors` (`pid`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_doctors_has_patients_patients1`
+    FOREIGN KEY (`patients_pid`)
+    REFERENCES `patients` (`pid`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `test_token`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `test_token` ;
+
+CREATE TABLE IF NOT EXISTS `test_token` (
+  `test_token` INT NOT NULL AUTO_INCREMENT,
+  `patients_pid` INT NOT NULL,
+  PRIMARY KEY (`test_token`),
+  INDEX `fk_test_token_patients1_idx` (`patients_pid` ASC) VISIBLE,
+  CONSTRAINT `fk_test_token_patients1`
+    FOREIGN KEY (`patients_pid`)
+    REFERENCES `patients` (`pid`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `test_token_has_test_list`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `test_token_has_test_list` ;
+
+CREATE TABLE IF NOT EXISTS `test_token_has_test_list` (
+  `test_token` INT NOT NULL,
+  `test_name` VARCHAR(45) NOT NULL,
+  `reference_num` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`test_token`, `test_name`),
+  INDEX `fk_test_token_has_test_list_test_list1_idx` (`test_name` ASC) VISIBLE,
+  INDEX `fk_test_token_has_test_list_test_token1_idx` (`test_token` ASC) VISIBLE,
+  CONSTRAINT `fk_test_token_has_test_list_test_token1`
+    FOREIGN KEY (`test_token`)
+    REFERENCES `test_token` (`test_token`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_test_token_has_test_list_test_list1`
+    FOREIGN KEY (`test_name`)
+    REFERENCES `test_list` (`test_name`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;

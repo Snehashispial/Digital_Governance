@@ -1,0 +1,105 @@
+-- MySQL Workbench Forward Engineering
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+-- -----------------------------------------------------
+-- Schema mydb
+-- -----------------------------------------------------
+DROP SCHEMA IF EXISTS `mydb` ;
+
+-- -----------------------------------------------------
+-- Schema mydb
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET utf8 ;
+USE `mydb` ;
+
+-- -----------------------------------------------------
+-- Table `mydb`.`citizen_info`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `mydb`.`citizen_info` ;
+
+CREATE TABLE IF NOT EXISTS `mydb`.`citizen_info` (
+  `citizen_id` VARCHAR(45) NOT NULL,
+  `password` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`citizen_id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`records`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `mydb`.`records` ;
+
+CREATE TABLE IF NOT EXISTS `mydb`.`records` (
+  `citizen_id` VARCHAR(45) NOT NULL,
+  `reference` VARCHAR(45) NOT NULL,
+  `doctor_id` VARCHAR(45) NULL,
+  `hospital_name` VARCHAR(45) NULL,
+  `hospital_address` VARCHAR(45) NULL,
+  `doctor_name` VARCHAR(45) NULL,
+  `doctor_designation` VARCHAR(45) NULL,
+  `doctor_gender` VARCHAR(45) NULL,
+  `doctor_department` VARCHAR(45) NULL,
+  `doctor_degree` VARCHAR(45) NULL,
+  `doctor_institution` VARCHAR(45) NULL,
+  `hotline` VARCHAR(45) NULL,
+  `symptoms` VARCHAR(45) NULL,
+  `advice` VARCHAR(45) NULL,
+  `follow_up_date` DATE NULL,
+  PRIMARY KEY (`citizen_id`, `reference`),
+  INDEX `fk_records_citizen_info_idx` (`citizen_id` ASC) VISIBLE,
+  CONSTRAINT `fk_records_citizen_info`
+    FOREIGN KEY (`citizen_id`)
+    REFERENCES `mydb`.`citizen_info` (`citizen_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`tests`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `mydb`.`tests` ;
+
+CREATE TABLE IF NOT EXISTS `mydb`.`tests` (
+  `test_name` VARCHAR(100) NOT NULL,
+  `test_report_file` VARCHAR(100) NULL,
+  `test_override` TINYINT NULL,
+  `citizen_id` VARCHAR(45) NOT NULL,
+  `reference` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`test_name`, `citizen_id`, `reference`),
+  INDEX `fk_test_records1_idx` (`citizen_id` ASC, `reference` ASC) VISIBLE,
+  CONSTRAINT `fk_test_records1`
+    FOREIGN KEY (`citizen_id` , `reference`)
+    REFERENCES `mydb`.`records` (`citizen_id` , `reference`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`medicines`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `mydb`.`medicines` ;
+
+CREATE TABLE IF NOT EXISTS `mydb`.`medicines` (
+  `medicine_name` VARCHAR(45) NOT NULL,
+  `dosage` VARCHAR(45) NULL,
+  `comment` VARCHAR(45) NULL,
+  `citizen_id` VARCHAR(45) NOT NULL,
+  `reference` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`medicine_name`, `citizen_id`, `reference`),
+  INDEX `fk_medicine_records1_idx` (`citizen_id` ASC, `reference` ASC) VISIBLE,
+  CONSTRAINT `fk_medicine_records1`
+    FOREIGN KEY (`citizen_id` , `reference`)
+    REFERENCES `mydb`.`records` (`citizen_id` , `reference`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
